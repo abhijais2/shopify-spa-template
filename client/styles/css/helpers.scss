@@ -1,0 +1,119 @@
+/* ===========================
+General purpose helper classes
+=========================== */
+.txt-upper {
+  text-transform: uppercase;
+}
+
+.txt-italic {
+  font-style: italic;
+}
+
+.txt-rt {
+  text-align: right;
+}
+.txt-lt {
+  text-align: left;
+}
+
+.clearfix::before,
+.clearfix::after {
+  display: table;
+  content: " ";
+}
+
+.clearfix::after {
+  clear: both;
+}
+
+
+/* =====  Width Style  ===== */
+.wd100 { width: 100%; }
+.wd50 { width: 50%; }
+
+/* =====  Height Style  ===== */
+.ht100 { height: 100%; }
+
+
+/* ======  Font Size Style ======= */
+.fs16 { font-size: 16px !important; }
+.fs15 { font-size: 15px !important; }
+.fs14 { font-size: 14px !important; }
+.fs13 { font-size: 13px !important; }
+.fs12 { font-size: 12px !important; }
+
+
+/* =====  Font Weight Style  ===== */
+.fw900 { font-weight: 900; /* Proxima Nova Black */ }
+.fw800 { font-weight: 800; /* Proxima Nova Extrabold */ }
+.fw700 { font-weight: 700; /* Proxima Nova Bold */ }
+.fw600 { font-weight: 600; /* Proxima Nova Semibold */ }
+.fw500 { font-weight: 500; /* Proxima Nova Medium */ }
+.fw400 { font-weight: 400; /* Proxima Nova Regular */ }
+.fw300 { font-weight: 300; /* Proxima Nova Light */ }
+.fw100 { font-weight: 100; /* Proxima Nova Thin */ }
+
+
+/* ======  Display Style ======= */
+.display-table {
+  display: table;
+}
+
+.display-table-cell {
+  display: table-cell;
+}
+
+
+/* ======  position Style ======= */
+.pos-rel {
+  position: relative;
+}
+
+.pos-abs {
+  position: absolute;
+}
+
+
+/* ======  Border Style ======= */
+.border-none {
+  border: 0 !important;
+  border: none !important;
+}
+
+
+/* ======  Padding Style ======= */
+.p-0 { padding: 0 !important; }
+
+.pb-15 {
+  padding-bottom: 15px !important;
+}
+
+
+/* ======  Margin Style ======= */
+.m-0 {
+  margin: 0 !important;
+}
+
+@for $i from 0 through 10 {
+  .mt-#{$i*5} {
+    margin-top: #{$i*5}px !important;
+  }
+
+  .mb-#{$i*5} {
+    margin-bottom: #{$i*5}px !important;
+  }
+}
+
+/* ====== Separator ========= */
+.separator {
+  background-color: #f6f6f6;
+  margin-right: 10px;
+  margin-left: 10px;
+  &.separator--vertical {
+    width: 1px;
+  }
+
+  &.separator--horizontal {
+    height: 1px;;
+  }
+}

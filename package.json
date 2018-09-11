@@ -1,0 +1,87 @@
+{
+  "name": "mkvn-spa-template",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+    "vuejs",
+    "nodejs",
+    "koajs",
+    "mongoose",
+    "webpack"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=8.9.0"
+  },
+  "per-env": {},
+  "scripts": {
+    "start": "per-env",
+    "start:production": "node server/index.js",
+    "start:development": "nodemon server/index.js & webpack-dev-server --config ./build/webpack.conf",
+    "build": "./node_modules/.bin/webpack --progress --config ./build/webpack.conf"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abhijais2/mkvn-spa-template.git"
+  },
+  "author": "Abhishek Jaiswal",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/abhijais2/mkvn-spa-template/issues"
+  },
+  "homepage": "https://github.com/abhijais2/mkvn-spa-template#readme",
+  "globals": [
+    "rootRequire"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@koa/cors": "^2.2.2",
+    "app-module-path": "^2.2.0",
+    "babel-loader": "^8.0.2",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "copy-webpack-plugin": "^4.5.2",
+    "css-loader": "^1.0.0",
+    "dotenv": "^6.0.0",
+    "eslint-friendly-formatter": "^4.0.1",
+    "eslint-loader": "^2.1.0",
+    "friendly-errors-webpack-plugin": "^1.7.0",
+    "html-webpack-plugin": "^3.2.0",
+    "koa": "^2.5.2",
+    "koa-better-body": "^3.0.4",
+    "koa-helmet": "^4.0.0",
+    "koa-respond": "^1.0.1",
+    "koa-router": "^7.4.0",
+    "koa-static": "^5.0.0",
+    "moment": "^2.22.2",
+    "mongoose": "^5.2.14",
+    "nconf": "^0.10.0",
+    "node-sass": "^4.9.3",
+    "per-env": "git://github.com/sylvainlap/per-env.git#master",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.0",
+    "vue": "^2.5.17",
+    "vue-loader": "^15.4.1",
+    "vue-route": "^1.5.1",
+    "vue-router": "^3.0.1",
+    "vue-template-compiler": "^2.5.16",
+    "vuex": "^3.0.1",
+    "vuex-router-sync": "^5.0.0",
+    "webpack": "^4.17.2",
+    "webpack-cli": "^3.1.0",
+    "webpack-merge": "^4.1.4",
+    "winston": "^3.1.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^9.0.0",
+    "eslint": "^5.5.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-html": "^4.0.5",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-promise": "^4.0.0",
+    "eslint-plugin-standard": "^4.0.0",
+    "webpack-dev-server": "^3.1.7"
+  }
+}
