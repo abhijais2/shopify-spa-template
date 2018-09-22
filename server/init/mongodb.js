@@ -15,7 +15,7 @@ module.exports = () => {
   })
 
   mongoose.connection.on('error', function (error) {
-    logger.debug({ message: `Mongoose default connection error`, error })
+    logger.debug({ message: `Mongoose default connection error`, err_msg: error.message })
   })
 
   mongoose.connection.on('disconnected', function () {
