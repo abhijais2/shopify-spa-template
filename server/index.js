@@ -11,7 +11,7 @@ require('./init').register()
 
 const app = require('./app')
 const logger = require('./services/logger')
-const { PORT } = nconf.get('app')
+const { PORT } = require('nconf').get('app')
 
 const server = app.listen(PORT || 3001, () => {})
 
