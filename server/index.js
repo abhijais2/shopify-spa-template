@@ -11,8 +11,9 @@ require('./init').register()
 
 const app = require('./app')
 const logger = require('./services/logger')
+const { PORT } = nconf.get('app')
 
-const server = app.listen(process.env.APP_PORT || process.env.PORT || 3001, () => {})
+const server = app.listen(PORT || 3001, () => {})
 
 logger.debug({
   NODE_ENV: process.env.NODE_ENV,
