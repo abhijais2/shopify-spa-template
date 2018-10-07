@@ -5,7 +5,7 @@ const StoresSchema = new Schema({
   store_identifier: { type: String, required: true },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date },
-  status: { type: String, enum: ['active', 'deleted'], default: 'active' }
+  status: { type: String, enum: ['active', 'deleted'], default: 'active' },
   secret_info: {
     access_token: { type: String }
   },

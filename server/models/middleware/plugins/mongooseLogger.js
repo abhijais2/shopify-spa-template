@@ -1,4 +1,4 @@
-const logger = rootRequire('server/services/logger')
+const logger = require('server/services/logger')
 
 module.exports = exports = function mongooseLogger (schema, options) {
   schema.pre('save', function (next) {
@@ -11,7 +11,7 @@ module.exports = exports = function mongooseLogger (schema, options) {
 
   schema.pre('findOneAndUpdate', function (next, params) {
     logger.debug({
-      message: 'mongooseLogger-plugin | pre-findOneAndUpdate hook', 
+      message: 'mongooseLogger-plugin | pre-findOneAndUpdate hook',
       data: this._update
     })
     next()

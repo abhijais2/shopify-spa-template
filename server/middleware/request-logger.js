@@ -2,7 +2,7 @@ const logger = require('../services/logger')
 
 module.exports = () => {
   return async function requestLogger (ctx, next) {
-    logger.info(`\n-------------------------------------------------`)
+    logger.info(`-------------------------------------------------`)
     logger.info(`${ctx.method} - ${ctx.url}`)
     logger.debug({ data: ctx.request ? ctx.request.fields : null })
     let startTime = new Date()

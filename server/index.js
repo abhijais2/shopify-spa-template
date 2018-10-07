@@ -13,7 +13,7 @@ const app = require('./app')
 const logger = require('./services/logger')
 const { PORT } = require('nconf').get('app')
 
-const server = app.listen(PORT || 3001, () => {})
+const server = app.listen(PORT || 3000, () => {})
 
 logger.debug({
   NODE_ENV: process.env.NODE_ENV,
@@ -21,5 +21,8 @@ logger.debug({
 })
 
 app.on('error', err => {
-  logger.error(err)
+  logger.error({
+    message: 'app error',
+    err
+  })
 })

@@ -1,5 +1,4 @@
 const fs = require('fs')
-const mongoose = require('mongoose')
 
 // insert global plugins
 require('./middleware')

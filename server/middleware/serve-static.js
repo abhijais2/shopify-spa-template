@@ -16,11 +16,13 @@ module.exports = () => {
           if (!isHtml) {
             res.setHeader('Cache-Control', `max-age=${oneYearInSecs}`)
           }
-        }
+        },
+        defer: true
       }),
       indexFallbackMiddleware()
     ])
   } else {
+    // return compose([indexFallbackMiddleware()])
     return () => {}
   }
 }

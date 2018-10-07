@@ -1,4 +1,4 @@
-const logger = rootRequire('server/services/logger')
+const logger = require('server/services/logger')
 
 module.exports = exports = function lastUpdatedPlugin (schema, options) {
   schema.pre('save', function (next) {

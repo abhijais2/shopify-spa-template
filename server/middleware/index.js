@@ -1,5 +1,5 @@
 const compose = require('koa-compose')
-const helmet = require('koa-helmet')
+// const helmet = require('koa-helmet')
 const cors = require('@koa/cors')
 const respond = require('koa-respond')
 
@@ -11,7 +11,7 @@ const serveStatic = require('./serve-static')
 
 module.exports = (app) => {
   return compose([
-    helmet(),
+    // helmet(),
     cors(),
     requestLogger(),
     respond(),
