@@ -8,6 +8,7 @@ const router = require('../router')
 const requestLogger = require('./request-logger')
 const errorHandler = require('./error-handler')
 const serveStatic = require('./serve-static')
+const session = require('./session')
 
 module.exports = (app) => {
   return compose([
@@ -16,6 +17,7 @@ module.exports = (app) => {
     requestLogger(),
     respond(),
     errorHandler(),
+    session(app),
     serveStatic(),
     router.routes(),
     router.allowedMethods()

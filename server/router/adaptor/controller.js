@@ -38,63 +38,13 @@ module.exports = {
 
     ctx.request.accessToken = access_token
     await setSession(ctx)
-    await saveAccessToken(ctx)
+    saveAccessToken(ctx)
 
     await next()
-  },
-
-  async isRecurringChargeEnabled (ctx, next) {
-    logger.debug({ message: 'inside isRecurringChargeEnabled' })
-
-    /*
-    * get Store information
-    * if status = accepted, inforce in UI to redirect to notifiers
-    * else
-    * if charge object is not present, create a charge record, update store with the charge record
-    * send confirmation_url to UI for redirection
-    * Handle charge decline/accept
-    */
-
-
-    let store = await Store.findOne({ storeIdentifier: ctx.session.storeIdentifier }).exec()
-
-    if (store && store.appCharge && store.appCharge.status === 'accepted') {
-      ctx.body = { status: true }
-    } else {
-      ctx.body = await createRecurringCharge(ctx, store)
-    }
-  },
-
-  async handleChargeAcceptDecline (ctx, next) {
-    logger.debug({ message: 'inside handleChargeAcceptDecline', query: ctx.request.query })
-
-    /*
-    * get charge-id from url query
-    * get charge record from shopify url
-    * if status = accepted, update store info && redirect to index file ctx.redirect(`/?storeIdentifier=${storeIdentifier}`)
-    * else redirect shopify apps location
-    */
-
-    let chargeId = ctx.request.query.charge_id
-    let chargeRecord = await getChargeRecordFromShopify(ctx, chargeId)
-
-    logger.debug({ chargeRecord })
-
-    if (chargeRecord.status === 'accepted') {
-      let store = await Store.findOne({ storeIdentifier: ctx.session.storeIdentifier }).exec()
-      store.appCharge.status = 'accepted'
-      await Store.findByIdAndUpdate(store._id, store, { new: true }).exec()
-
-      if (!chargeRecord.activated_on) await activateChargeRecord(ctx, chargeRecord)
-
-      ctx.redirect(`/?storeIdentifier=${ctx.session.storeIdentifier}`)
-    } else {
-      ctx.redirect(`https://${ctx.session.storeIdentifier}.myshopify.com/admin/apps`)
-    }
   }
 }
 
-/*-------------------------Private methods--------------------------*/
+/* -------------------------Private methods-------------------------- */
 
 const buildRedirectURL = (ctx) => {
   const { shop } = ctx.request.query
@@ -112,76 +62,6 @@ const buildRedirectURL = (ctx) => {
   logger.debug('redirectParams: ' + JSON.stringify(redirectParams))
   let toReturn = `${redirectTo}?${queryString.stringify(redirectParams)}`
   return toReturn
-}
-
-const activateChargeRecord = async (ctx, chargeRecord) => {
-  logger.debug({ message: `Inside activateChargeRecord`, chargeRecord})
-
-  const storeIdentifier = ctx.session.storeIdentifier
-  const reqConfig = {
-    url: `https://${storeIdentifier}.myshopify.com/admin/recurring_application_charges/${chargeRecord.id}/activate.json`,
-    headers: {
-      'X-Shopify-Access-Token': ctx.session.accessToken
-    },
-    data: chargeRecord
-  }
-
-  await httpReq.post(reqConfig)
-}
-
-const createRecurringCharge = async (ctx, store) => {
-  logger.debug({ message: 'inside createRecurringCharge' })
-
-  if (store && !(store.appCharge && store.appCharge.status === 'accepted')) {
-    let response = await createRecurringChargeRecord(ctx)
-    store.appCharge = response.recurring_application_charge
-    store = await Store.findByIdAndUpdate(store._id, store, { new: true }).exec()
-  }
-
-  logger.debug({ store })
-
-  return { confirmation_url: store.appCharge.confirmation_url, status: false }
-}
-
-const getChargeRecordFromShopify = async (ctx, chargeId) => {
-  logger.debug({ message: `Inside getChargeRecordFromShopify. chargeId: ${chargeId}`})
-
-  const storeIdentifier = ctx.session.storeIdentifier
-  const reqConfig = {
-    url: `https://${storeIdentifier}.myshopify.com/admin/recurring_application_charges/${chargeId}.json`,
-    headers: {
-      'X-Shopify-Access-Token': ctx.session.accessToken
-    }
-  }
-
-  let result = await httpReq.get(reqConfig)
-
-  return result.recurring_application_charge
-}
-
-const createRecurringChargeRecord = async (ctx) => {
-  logger.debug({ message: `Creating recurring charge for shop: ${ctx.session.storeIdentifier}`})
-
-  const testChargeStoreIdentifiers = ['satging-realtime-notifier', 'production-realtime-notifier']
-
-  const storeIdentifier = ctx.session.storeIdentifier
-  const reqConfig = {
-    url: `https://${storeIdentifier}.myshopify.com/admin/recurring_application_charges.json`,
-    data: {
-      recurring_application_charge: {
-        name: 'Basic Plan',
-        price: 1.99,
-        return_url: `${APP_HOST}/adaptor/charge-accept-decline`,
-        trial_days: 5,
-        test: testChargeStoreIdentifiers.includes(storeIdentifier)
-      }
-    },
-    headers: {
-      'X-Shopify-Access-Token': ctx.session.accessToken
-    }
-  }
-
-  return await httpReq.post(reqConfig)
 }
 
 const isAccessTokenValid = async (ctx) => {
@@ -204,15 +84,47 @@ const isAccessTokenValid = async (ctx) => {
     }
   }
 
-  logger.debug({ message: `isAccessTokenValid: ${toReturn}`})
+  logger.debug({ message: `isAccessTokenValid: ${toReturn}` })
   return toReturn
 }
 
-const getStoreIdentifierFromCtx = (ctx) => {
-  return ctx.request.query.shop.replace('.myshopify.com', '')
+const validateHMAC = async (ctx) => {
+  logger.debug('Validating HMAC')
+  const { query } = ctx.request
+  const { hmac } = query
+
+  const map = JSON.parse(JSON.stringify(query))
+  delete map['signature']
+  delete map['hmac']
+
+  const message = queryString.stringify(map)
+  const generatedHash = crypto
+    .createHmac('sha256', CLIENT_SECRET)
+    .update(message)
+    .digest('hex')
+
+  if (generatedHash !== hmac) ctx.throw(400, 'HMAC validation failed')
+  logger.debug('HMAC validated successfully')
 }
 
-const setSession = (ctx) => {
+const getAccessToken = async (ctx) => {
+  logger.debug('Fetching accessToken...')
+  const { code, shop } = ctx.request.query
+
+  const reqConfig = {
+    url: `https://${shop}/admin/oauth/access_token`,
+    data: {
+      code,
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET
+    }
+  }
+
+  let toReturn = await httpReq.post(reqConfig)
+  return toReturn
+}
+
+const setSession = async (ctx) => {
   const { accessToken } = ctx.request
   const { shop } = ctx.request.query
 
@@ -257,6 +169,10 @@ const saveAccessToken = async (ctx) => {
   }
 
   logger.debug({ storeDoc })
+}
+
+const getStoreIdentifierFromCtx = (ctx) => {
+  return ctx.request.query.shop.replace('.myshopify.com', '')
 }
 
 const createNewStoreMetadata = async (ctx, storeDoc) => {
@@ -312,41 +228,4 @@ const createAppUninstallWebhook = async (ctx) => {
   } catch (e) {
     logger.debug({message: 'Error creating app uninstall webhook', body: (e.response ? e.response.body : e.message)})
   }
-}
-
-const getAccessToken = async (ctx) => {
-  logger.debug('Fetching accessToken...')
-  const { query } = ctx.request
-  const { code, hmac, shop } = query
-
-  const reqConfig = {
-    url: `https://${shop}/admin/oauth/access_token`,
-    data: {
-      code,
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET
-    }
-  }
-
-  let toReturn = await httpReq.post(reqConfig)
-  return toReturn
-}
-
-const validateHMAC = (ctx) => {
-  logger.debug('Validating HMAC')
-  const { query } = ctx.request
-  const { code, hmac, shop } = query
-
-  const map = JSON.parse(JSON.stringify(query));
-  delete map['signature'];
-  delete map['hmac'];
-
-  const message = queryString.stringify(map);
-  const generated_hash = crypto
-    .createHmac('sha256', CLIENT_SECRET)
-    .update(message)
-    .digest('hex');
-
-  if (generated_hash !== hmac) ctx.throw(400, 'HMAC validation failed')
-  logger.debug('HMAC validated successfully')
 }
