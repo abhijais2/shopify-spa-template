@@ -51,6 +51,50 @@ module.exports = {
 
   async createRecurringCharge (ctx, next) {
     logger.debug({ message: 'inside createRecurringCharge' })
+    let storeDoc
+    let shopifyRes
+
+    await Promise.all([
+      (async () => {
+        storeDoc = await Stores.findOne({ store_identifier: ctx.session.store_identifier }).exec()
+      })(),
+      (async () => {
+        shopifyRes = await createShopifyRecurringChargeRecord(ctx)
+      })()
+    ])
+
+    storeDoc.app_charge = shopifyRes.recurring_application_charge
+    storeDoc = await Stores.findByIdAndUpdate(storeDoc._id, storeDoc, { new: true }).exec()
+    logger.debug({ storeDoc })
+    return storeDoc.app_charge
+  },
+
+  async handleChargeAcceptDecline (ctx, next) {
+    logger.debug({ message: 'inside handleChargeAcceptDecline', query: ctx.request.query })
+
+    /*
+    * get charge-id from url query
+    * get charge record from shopify url
+    * if status = accepted, update store info && redirect to index file ctx.redirect(`/?storeIdentifier=${storeIdentifier}`)
+    * else redirect shopify apps location
+    */
+
+    let chargeId = ctx.request.query.charge_id
+    let chargeRecord = await getChargeRecordFromShopify(ctx, chargeId)
+
+    logger.debug({ chargeRecord })
+
+    if (chargeRecord.status === 'accepted') {
+      let store = await Stores.findOne({ store_identifier: ctx.session.store_identifier }).exec()
+      store.app_charge.status = 'accepted'
+      await Stores.findByIdAndUpdate(store._id, store, { new: true }).exec()
+
+      if (!chargeRecord.activated_on) await activateChargeRecord(ctx, chargeRecord)
+
+      ctx.redirect(`/?storeIdentifier=${ctx.session.store_identifier}`)
+    } else {
+      ctx.redirect(`https://${ctx.session.store_identifier}.myshopify.com/admin/apps`)
+    }
   }
 }
 
@@ -237,4 +281,60 @@ const createAppUninstallWebhook = async (ctx) => {
   } catch (e) {
     logger.debug({ message: 'Error creating app uninstall webhook', body: (e.response ? e.response.body : e.message) })
   }
+}
+
+const createShopifyRecurringChargeRecord = async (ctx) => {
+  logger.debug({ message: `Creating recurring charge for shop: ${ctx.session.store_identifier}` })
+
+  const testChargeStoreIdentifiers = ['staging-apps-testing']
+
+  const storeIdentifier = ctx.session.store_identifier
+  const reqConfig = {
+    url: `https://${storeIdentifier}.myshopify.com/admin/recurring_application_charges.json`,
+    data: {
+      recurring_application_charge: {
+        name: 'Basic Plan',
+        price: 1.99,
+        return_url: `${APP_HOST}/adaptor/charge-accept-decline`,
+        trial_days: 14,
+        test: testChargeStoreIdentifiers.includes(storeIdentifier)
+      }
+    },
+    headers: {
+      'X-Shopify-Access-Token': ctx.session.access_token
+    }
+  }
+
+  return httpReq.post(reqConfig)
+}
+
+const getChargeRecordFromShopify = async (ctx, chargeId) => {
+  logger.debug({ message: `Inside getChargeRecordFromShopify. chargeId: ${chargeId}` })
+
+  const storeIdentifier = ctx.session.store_identifier
+  const reqConfig = {
+    url: `https://${storeIdentifier}.myshopify.com/admin/recurring_application_charges/${chargeId}.json`,
+    headers: {
+      'X-Shopify-Access-Token': ctx.session.access_token
+    }
+  }
+
+  let result = await httpReq.get(reqConfig)
+
+  return result.recurring_application_charge
+}
+
+const activateChargeRecord = async (ctx, chargeRecord) => {
+  logger.debug({ message: `Inside activateChargeRecord`, chargeRecord })
+
+  const storeIdentifier = ctx.session.store_identifier
+  const reqConfig = {
+    url: `https://${storeIdentifier}.myshopify.com/admin/recurring_application_charges/${chargeRecord.id}/activate.json`,
+    headers: {
+      'X-Shopify-Access-Token': ctx.session.access_token
+    },
+    data: chargeRecord
+  }
+
+  await httpReq.post(reqConfig)
 }
