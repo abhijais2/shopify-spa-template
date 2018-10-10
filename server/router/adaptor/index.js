@@ -20,6 +20,10 @@ router.get('/auth/callback',
   }
 )
 
+router.get('/app-charge', ctrl.getAppCharge)
+
+router.post('/create-recurring-charge', ctrl.createRecurringCharge)
+
 router.post('/cust/redact', async (ctx) => {
   logger.debug('Inside /cust/redact route')
   ctx.response.status = 200

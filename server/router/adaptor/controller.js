@@ -10,7 +10,7 @@ const crypto = require('crypto')
 const httpReq = require('server/services/http-client')
 const logger = require('server/services/logger')
 const path = require('path')
-const { Store } = require('server/models')
+const { Stores } = require('server/models')
 
 module.exports = {
   async init (ctx, next) {
@@ -19,7 +19,7 @@ module.exports = {
     let redirectURL = buildRedirectURL(ctx)
     logger.debug('redirectURL: ' + redirectURL)
     // ctx.redirect(redirectURL)
-    await ctx.render(path.resolve(__dirname, 'init-shopify'), { redirectURL: redirectURL, storeIdentifier: shop.replace('.myshopify.com', '') })
+    await ctx.render(path.resolve(__dirname, 'init-shopify'), { redirectURL, store_identifier: shop.replace('.myshopify.com', '') })
   },
 
   async authCallback (ctx, next) {
@@ -36,11 +36,21 @@ module.exports = {
 
     let { access_token } = await getAccessToken(ctx)
 
-    ctx.request.accessToken = access_token
+    ctx.request.access_token = access_token
     await setSession(ctx)
     saveAccessToken(ctx)
 
     await next()
+  },
+
+  async getAppCharge (ctx, next) {
+    let storeDoc = await Stores.findOne({ store_identifier: ctx.session.store_identifier }).exec()
+    ctx.body = storeDoc.app_charge
+    await next()
+  },
+
+  async createRecurringCharge (ctx, next) {
+    logger.debug({ message: 'inside createRecurringCharge' })
   }
 }
 
@@ -67,12 +77,12 @@ const buildRedirectURL = (ctx) => {
 const isAccessTokenValid = async (ctx) => {
   let toReturn = false
 
-  if (ctx.session.accessToken && ctx.session.storeIdentifier === getStoreIdentifierFromCtx(ctx)) {
+  if (ctx.session.access_token && ctx.session.store_identifier === getstoreIdentifierFromCtx(ctx)) {
     try {
       let reqData = {
         url: `https://${ctx.request.query.shop}/admin/webhooks.json`,
         headers: {
-          'X-Shopify-Access-Token': ctx.session.accessToken
+          'X-Shopify-Access-Token': ctx.session.access_token
         }
       }
 
@@ -108,7 +118,7 @@ const validateHMAC = async (ctx) => {
 }
 
 const getAccessToken = async (ctx) => {
-  logger.debug('Fetching accessToken...')
+  logger.debug('Fetching access_token...')
   const { code, shop } = ctx.request.query
 
   const reqConfig = {
@@ -125,23 +135,23 @@ const getAccessToken = async (ctx) => {
 }
 
 const setSession = async (ctx) => {
-  const { accessToken } = ctx.request
+  const { access_token } = ctx.request
   const { shop } = ctx.request.query
 
-  ctx.session.accessToken = accessToken
-  ctx.session.storeIdentifier = shop.replace('.myshopify.com', '')
+  ctx.session.access_token = access_token
+  ctx.session.store_identifier = shop.replace('.myshopify.com', '')
 }
 
 const saveAccessToken = async (ctx) => {
-  logger.debug('saving accessToken')
-  const { query, accessToken } = ctx.request
-  const { code, hmac, shop } = query
-  const storeIdentifier = shop.replace('.myshopify.com', '')
+  logger.debug('saving access_token')
+  const { query, access_token } = ctx.request
+  const { shop } = query
+  const store_identifier = shop.replace('.myshopify.com', '')
 
-  let storeDoc = await Store.findOne({ storeIdentifier }).exec()
+  let storeDoc = await Stores.findOne({ store_identifier }).exec()
 
   if (storeDoc) {
-    storeDoc.access_token = accessToken
+    storeDoc.secret_info.access_token = access_token
     let storeStatus = storeDoc.status
     storeDoc.status = 'active'
 
@@ -154,29 +164,29 @@ const saveAccessToken = async (ctx) => {
         }
       })()
     ])
-
   } else {
     storeDoc = {
-      storeIdentifier,
-      password: '',
-      access_token: accessToken
+      store_identifier,
+      secret_info: {
+        access_token
+      }
     }
 
-    storeDoc = await Store.create(storeDoc)
+    storeDoc = await Stores.create(storeDoc)
     await createNewStoreMetadata(ctx, storeDoc)
 
-    logger.debug(`accessToken saved successfully. storeDoc: ${JSON.stringify(storeDoc)}` )
+    logger.debug({ message: 'access_token saved successfully.' })
   }
 
   logger.debug({ storeDoc })
 }
 
-const getStoreIdentifierFromCtx = (ctx) => {
+const getstoreIdentifierFromCtx = (ctx) => {
   return ctx.request.query.shop.replace('.myshopify.com', '')
 }
 
 const createNewStoreMetadata = async (ctx, storeDoc) => {
-  logger.info({ message: 'Creating new store metadata'})
+  logger.info({ message: 'Creating new store metadata' })
 
   await Promise.all([
     // await createRecurringCharge(ctx),
@@ -186,27 +196,26 @@ const createNewStoreMetadata = async (ctx, storeDoc) => {
 }
 
 const updateStoreInfo = async (ctx, storeDoc) => {
-  logger.info({ message: 'Updating store information...'})
+  logger.info({ message: 'Updating store information...' })
 
   const { shop } = ctx.request.query
 
   let reqData = {
     url: `https://${shop}/admin/shop.json`,
     headers: {
-      'X-Shopify-Access-Token': ctx.session.accessToken
+      'X-Shopify-Access-Token': ctx.session.access_token
     }
   }
 
   let storeInfo = await httpReq.get(reqData, ctx)
-  storeDoc.storeInfo = storeInfo.shop
+  storeDoc.store_info = storeInfo.shop
 
-  await Store.findByIdAndUpdate(storeDoc._id, storeDoc).exec()
+  await Stores.findByIdAndUpdate(storeDoc._id, storeDoc).exec()
 }
 
 const createAppUninstallWebhook = async (ctx) => {
-  logger.info({ message: 'Creating app uninstall webhook'})
-  const { query } = ctx.request
-  const { code, hmac, shop } = query
+  logger.info({ message: 'Creating app uninstall webhook' })
+  const { shop } = ctx.request.query
   const storeIdentifier = shop.replace('.myshopify.com', '')
 
   let reqData = {
@@ -219,13 +228,13 @@ const createAppUninstallWebhook = async (ctx) => {
       }
     },
     headers: {
-      'X-Shopify-Access-Token': ctx.session.accessToken
+      'X-Shopify-Access-Token': ctx.session.access_token
     }
   }
 
   try {
     await httpReq.post(reqData, ctx)
   } catch (e) {
-    logger.debug({message: 'Error creating app uninstall webhook', body: (e.response ? e.response.body : e.message)})
+    logger.debug({ message: 'Error creating app uninstall webhook', body: (e.response ? e.response.body : e.message) })
   }
 }

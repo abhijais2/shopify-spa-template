@@ -9,6 +9,8 @@ const StoresSchema = new Schema({
   secret_info: {
     access_token: { type: String }
   },
+  plan_name: { type: String, enum: ['basic'], default: 'basic' },
+  app_charge: Schema.Types.Mixed,
   store_info: Schema.Types.Mixed
 })
 
