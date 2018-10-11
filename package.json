@@ -34,12 +34,10 @@
     "webpack"
   ],
   "dependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
+    "@babel/runtime": "^7.1.2",
     "@koa/cors": "^2.2.2",
     "app-module-path": "^2.2.0",
     "axios": "^0.18.0",
-    "babel-loader": "^8.0.2",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "copy-webpack-plugin": "^4.5.2",
@@ -79,7 +77,11 @@
     "winston": "^3.1.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-transform-runtime": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
     "babel-eslint": "^9.0.0",
+    "babel-loader": "^8.0.4",
     "concurrently": "^4.0.1",
     "eslint": "^5.5.0",
     "eslint-config-prettier": "^3.1.0",
