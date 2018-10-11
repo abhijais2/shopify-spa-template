@@ -23,7 +23,9 @@ module.exports = () => {
     ])
   } else {
     // return compose([indexFallbackMiddleware()])
-    return () => {}
+    return async (ctx, next) => {
+      await next()
+    }
   }
 }
 
