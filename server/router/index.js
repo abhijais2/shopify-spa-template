@@ -13,12 +13,12 @@ router
 
 router.all('*', async (ctx, next) => {
   if (!/adaptor|api|dist/.test(ctx.path)) {
-    const { storeIdentifier } = ctx.request.query
-    logger.info({ message: 'Serving index file', storeIdentifier })
+    const { store_identifier } = ctx.request.query
+    logger.info({ message: 'Serving index file', store_identifier })
 
     await ctx.render('dist/index', {
-      storeIdentifier,
-      apiKey: CLIENT_ID
+      store_identifier,
+      api_key: CLIENT_ID
     })
   }
   await next()

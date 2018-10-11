@@ -11,7 +11,7 @@ module.exports = () => {
   return async function ErrorHandler (ctx, next) {
     try {
       await next()
-      if (ctx.status < 200 || ctx.status >= 300) ctx.throw(ctx.status)
+      if (ctx.status < 200 || ctx.status >= 400) ctx.throw(ctx.status)
     } catch (err) {
       configureAndSendErrorToClient(err, ctx)
       ctx.app.emit('error', err, ctx)

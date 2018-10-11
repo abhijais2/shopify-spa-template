@@ -21,8 +21,9 @@ logger.debug({
 })
 
 app.on('error', err => {
-  logger.error({
+  logger.debug({
     message: 'app error',
-    err
+    errObj: err,
+    errMessage: err ? err.message : ''
   })
 })

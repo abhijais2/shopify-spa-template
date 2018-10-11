@@ -9,7 +9,6 @@ const queryString = require('query-string')
 const crypto = require('crypto')
 const httpReq = require('server/services/http-client')
 const logger = require('server/services/logger')
-const path = require('path')
 const { Stores } = require('server/models')
 
 module.exports = {
@@ -19,7 +18,12 @@ module.exports = {
     let redirectURL = buildRedirectURL(ctx)
     logger.debug('redirectURL: ' + redirectURL)
     // ctx.redirect(redirectURL)
-    await ctx.render(path.resolve(__dirname, 'init-shopify'), { redirectURL, store_identifier: shop.replace('.myshopify.com', '') })
+    await ctx.render(
+      'server/router/adaptor/init-shopify',
+      {
+        redirectURL,
+        store_identifier: shop.replace('.myshopify.com', '')
+      })
   },
 
   async authCallback (ctx, next) {
@@ -66,7 +70,8 @@ module.exports = {
     storeDoc.app_charge = shopifyRes.recurring_application_charge
     storeDoc = await Stores.findByIdAndUpdate(storeDoc._id, storeDoc, { new: true }).exec()
     logger.debug({ storeDoc })
-    return storeDoc.app_charge
+    ctx.body = storeDoc.app_charge
+    await next()
   },
 
   async handleChargeAcceptDecline (ctx, next) {

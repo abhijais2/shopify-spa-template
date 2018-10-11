@@ -104,9 +104,12 @@ module.exports = {
       to: path.join(__dirname, '..', 'dist')
     }]),
     new HtmlWebpackPlugin({
-      index: 'index.html',
-      template: 'index.html',
+      template: '!!raw-loader!index.html',
+      filename: 'index.html',
       inject: true
     })
-  ]
+  ],
+  externals: {
+    ShopifyApp: 'ShopifyApp'
+  }
 }

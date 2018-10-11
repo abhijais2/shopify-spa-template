@@ -3,8 +3,9 @@
   <head>
     <script type="text/javascript">
     // If the current window is the 'parent', change the URL by setting location.href
-    window.redirectURL = "<%= redirectURL %>"
-    window.storeIdentifier = "<%= storeIdentifier %>"
+    window.redirectURL = "<%- redirectURL %>"
+    window.store_identifier = "<%- store_identifier %>"
+    
     if (window.top == window.self) {
       window.top.location.href = window.redirectURL;
 
@@ -14,7 +15,7 @@
         message: "Shopify.API.remoteRedirect",
         data: { location: window.redirectURL }
       });
-      window.parent.postMessage(message, `https://${window.storeIdentifier}.myshopify.com`);
+      window.parent.postMessage(message, `https://${window.store_identifier}.myshopify.com`);
     }
     </script>
   </head>

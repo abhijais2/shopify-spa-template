@@ -15,7 +15,6 @@ router.get('/auth/callback',
     logger.debug({ message: 'Redirecting to serve html.' })
     const { shop } = ctx.request.query
     const storeIdentifier = shop.replace('.myshopify.com', '')
-
     ctx.redirect(`/?storeIdentifier=${storeIdentifier}`)
   }
 )
