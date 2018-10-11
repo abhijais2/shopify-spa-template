@@ -89,7 +89,7 @@ module.exports = {
       store.app_charge.status = 'accepted'
       await Stores.findByIdAndUpdate(store._id, store, { new: true }).exec()
 
-      if (!chargeRecord.activated_on) await activateChargeRecord(ctx, chargeRecord)
+      if (!chargeRecord.activated_on) activateChargeRecord(ctx, chargeRecord)
 
       ctx.redirect(`/?storeIdentifier=${ctx.session.store_identifier}`)
     } else {

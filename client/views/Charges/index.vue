@@ -15,12 +15,13 @@ export default {
   },
 
   async created () {
-    let result = await adaptor.isRecurringChargeEnabled()
+    let appCharge = await adaptor.getAppCharge()
 
-    if (result.status) {
-      this.$router.push({name: 'notifiers'})
+    if (appCharge && appCharge.status === 'accepted') {
+      this.$router.push({name: 'home'})
     } else {
-      window.top.location.href = result.confirmation_url
+      let shopifyChargeResponse = await adaptor.createRecurringCharge()
+      window.top.location.href = shopifyChargeResponse.confirmation_url
     }
 
     this.loading = false
