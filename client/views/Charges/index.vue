@@ -15,16 +15,20 @@ export default {
   },
 
   async created () {
-    let appCharge = await adaptor.getAppCharge()
+    try {
+      let appCharge = await adaptor.getAppCharge()
 
-    if (appCharge && appCharge.status === 'accepted') {
-      this.$router.push({name: 'home'})
-    } else {
-      let shopifyChargeResponse = await adaptor.createRecurringCharge()
-      window.top.location.href = shopifyChargeResponse.confirmation_url
+      if (appCharge && appCharge.status === 'accepted') {
+        this.$router.push({ name: 'home' })
+      } else {
+        let shopifyChargeResponse = await adaptor.createRecurringCharge()
+        window.top.location.href = shopifyChargeResponse.confirmation_url
+      }
+
+      this.loading = false
+    } catch (err) {
+      console.log('error: ', err.message)
     }
-
-    this.loading = false
   }
 }
 </script>
