@@ -4,7 +4,7 @@ const { extname, resolve, join } = require('path')
 const moment = require('moment')
 const serveStatic = require('koa-static')
 
-const staticPath = resolve(__dirname, '../../dist')
+const staticPath = resolve(__dirname, '../..')
 const oneYearInSecs = moment.duration(1, 'years').asSeconds()
 
 module.exports = () => {
