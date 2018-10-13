@@ -4,6 +4,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 require('dotenv').config()
 
@@ -16,8 +17,8 @@ module.exports = {
 
   output: {
     path: path.resolve(__dirname, '..', 'dist'),
-    filename: '[name].[hash].js',
-    publicPath: '/'
+    filename: '[name].js',
+    publicPath: '/dist'
   },
 
   resolve: {
@@ -48,6 +49,14 @@ module.exports = {
             ]
           }
         }
+      },
+      {
+        test: /\.(sa|sc|c)ss$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          'sass-loader'
+        ]
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
@@ -107,7 +116,8 @@ module.exports = {
       template: '!!raw-loader!index.html',
       filename: 'index.html',
       inject: true
-    })
+    }),
+    new MiniCssExtractPlugin({})
   ],
   externals: {
     ShopifyApp: 'ShopifyApp'
