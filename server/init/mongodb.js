@@ -7,11 +7,11 @@ module.exports = () => {
   mongoose.connect(MONGODB_URI, { auto_reconnect: true })
 
   mongoose.connection.on('connecting', function () {
-    logger.debug({ message: `mongoose connecting to mlbal @ ${MONGODB_URI}` })
+    logger.debug({ message: `mongoose connecting to mlbal` })
   })
 
   mongoose.connection.on('connected', function () {
-    logger.debug({ message: `Mongoose default connection open to ${MONGODB_URI}` })
+    logger.debug({ message: `Mongoose connected successfully` })
   })
 
   mongoose.connection.on('error', function (error) {

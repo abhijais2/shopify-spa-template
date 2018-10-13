@@ -13,9 +13,12 @@ export default {
   },
 
   created () {
+    let api_key = window.api_key
+    let store_identifier = window.store_identifier
+
     const shopifyAppConfig = {
-      apiKey: window.api_key,
-      shopOrigin: `https://${window.store_identifier}.myshopify.com`,
+      apiKey: api_key,
+      shopOrigin: `https://${store_identifier}.myshopify.com`,
       debug: true,
       forceRedirect: true
     }
