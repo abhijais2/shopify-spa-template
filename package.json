@@ -36,6 +36,7 @@
   "dependencies": {
     "@babel/runtime": "^7.1.2",
     "@koa/cors": "^2.2.2",
+    "agenda": "^2.0.2",
     "app-module-path": "^2.2.0",
     "axios": "^0.18.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
