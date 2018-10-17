@@ -1,6 +1,19 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
+const lowStockSchema = new Schema({
+  filters: {
+    type: { type: String, enum: ['basic', 'advanced'] },
+    entries: [
+      {
+
+      }
+    ]
+  }
+})
+
+const hideUnhideSchema = new Schema({})
+
 const AlertsSchema = new Schema({
   store_identifier: { type: String, required: true },
   created_at: { type: Date, default: Date.now },
@@ -22,7 +35,9 @@ const AlertsSchema = new Schema({
       subject: { type: String },
       message: { type: String }
     }
-  }
+  },
+  low_stock: lowStockSchema,
+  hide_unhide: hideUnhideSchema
 })
 
 module.exports = mongoose.model('Alerts', AlertsSchema)
