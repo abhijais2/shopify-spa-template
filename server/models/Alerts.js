@@ -6,7 +6,6 @@ const lowStockSchema = new Schema({
     type: { type: String, enum: ['basic', 'advanced'] },
     entries: [
       {
-
       }
     ]
   }
