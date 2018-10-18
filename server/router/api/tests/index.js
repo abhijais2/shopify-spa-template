@@ -8,5 +8,6 @@ router.all('/tests/*', async (ctx, next) => {
 
 router
   .get('/tests', ctrl.getAll)
+  .post('/tests/scheduler_register', ctrl.scheduler_register)
 
 module.exports = router.routes()

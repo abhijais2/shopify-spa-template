@@ -1,1 +1,1 @@
-require('./agenda.js')
+module.exports = require('./agenda.js')

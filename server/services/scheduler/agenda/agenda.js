@@ -19,16 +19,16 @@ agenda.start()
   })
 
 agenda.on('start', job => {
-  logger.info({ message: `start-event | job-name: ${job.attrs.name} | job-metadata: ${job.attrs.data}` })
+  logger.info({ message: `start-event | job-name: ${job.attrs.name} | job-metadata: ${JSON.stringify(job.attrs.data)}` })
 })
 
 agenda.on('success', job => {
-  logger.info({ message: `success-event | job-name: ${job.attrs.name} | job-metadata: ${job.attrs.data}` })
+  logger.info({ message: `success-event | job-name: ${job.attrs.name} | job-metadata: ${JSON.stringify(job.attrs.data)}` })
 })
 
 agenda.on('fail', (err, job) => {
   logger.error({
-    message: `fail-event | job-name: ${job.attrs.name} | job-metadata: ${job.attrs.data}`,
+    message: `fail-event | job-name: ${job.attrs.name} | job-metadata: ${JSON.stringify(job.attrs.data)}`,
     errMessage: err.message
   })
 })

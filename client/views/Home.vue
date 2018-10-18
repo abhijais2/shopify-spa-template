@@ -5,11 +5,7 @@
 </template>
 
 <script>
-import ShopifyApp from 'ShopifyApp'
-
 export default {
-  async created () {
-    let vm = this
-  }
+  async created () {}
 }
 </script>
