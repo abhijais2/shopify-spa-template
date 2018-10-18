@@ -2,7 +2,7 @@ const { Alerts } = require('server/models')
 
 module.exports = {
   async getAll (ctx) {
-    ctx.body = await Alerts.find().exec()
+    ctx.body = await Alerts.find({ store_identifier: ctx.session.store_identifier }).exec()
   },
 
   async getById (ctx) {
@@ -19,6 +19,7 @@ module.exports = {
 
   async create (ctx) {
     let data = ctx.request.fields
+    data.store_identifier = ctx.session.store_identifier
     ctx.body = await Alerts.create(data)
   },
 

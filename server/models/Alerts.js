@@ -2,16 +2,33 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const lowStockSchema = new Schema({
+  stock_alert_level: { type: Number },
   filters: {
     type: { type: String, enum: ['basic', 'advanced'] },
-    entries: [
-      {
-      }
-    ]
+    basic: {
+      published_product_only: { type: Boolean },
+      shopify_tracks_inventory: { type: Boolean },
+      product_belongs_collections: { type: Array },
+      product_not_belongs_collections: { type: Array },
+      product_venodrs: { type: Array }
+    }
   }
 })
 
-const hideUnhideSchema = new Schema({})
+const hideUnhideSchema = new Schema({
+  actions: {
+    auto_hide_sold_out: { type: Boolean },
+    auto_unhide_in_stock: { type: Boolean }
+  },
+  filters: {
+    type: { type: String, enum: ['basic', 'advanced'] },
+    basic: {
+      no_image_hidden_products_publish_unallowed: { type: Boolean },
+      sold_out_purchase_allowed_hide_unallowed: { type: Boolean },
+      sold_out_purchase_allowed_publish_allowed: { type: Boolean }
+    }
+  }
+})
 
 const AlertsSchema = new Schema({
   store_identifier: { type: String, required: true },
