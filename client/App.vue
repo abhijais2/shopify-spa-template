@@ -13,7 +13,6 @@ export default {
   },
 
   created () {
-    console.log('process.env.NODE_ENV ', process.env.NODE_ENV)
     let api_key = window.api_key
     let store_identifier = window.store_identifier
 
