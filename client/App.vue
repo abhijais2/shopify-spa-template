@@ -13,6 +13,7 @@ export default {
   },
 
   created () {
+    console.log('process.env.NODE_ENV ', process.env.NODE_ENV)
     let api_key = window.api_key
     let store_identifier = window.store_identifier
 
@@ -20,7 +21,7 @@ export default {
       apiKey: api_key,
       shopOrigin: `https://${store_identifier}.myshopify.com`,
       debug: true,
-      forceRedirect: true
+      forceRedirect: process.env.NODE_ENV !== 'development'
     }
 
     ShopifyApp.init(shopifyAppConfig)

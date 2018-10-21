@@ -8,6 +8,12 @@ const baseWebpackConfig = require('./webpack.base.conf')
 module.exports = merge(baseWebpackConfig, {
   mode: 'development',
 
+  output: {
+    path: path.resolve(__dirname, '..', 'dist'),
+    filename: '[name].js',
+    publicPath: '/'
+  },
+
   devServer: {
     port: parseInt(process.env.PORT) + 1,
     open: true,

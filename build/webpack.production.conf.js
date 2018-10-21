@@ -9,6 +9,12 @@ const baseWebpackConfig = require('./webpack.base.conf')
 const webpackConfig = merge(baseWebpackConfig, {
   mode: 'production',
 
+  output: {
+    path: path.resolve(__dirname, '..', 'dist'),
+    filename: '[name].js',
+    publicPath: '/dist'
+  },
+
   module: {
     rules: [
     ]

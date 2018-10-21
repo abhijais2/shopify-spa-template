@@ -15,16 +15,11 @@ module.exports = {
     ]
   },
 
-  output: {
-    path: path.resolve(__dirname, '..', 'dist'),
-    filename: '[name].js',
-    publicPath: '/dist'
-  },
-
   resolve: {
     extensions: ['.js', '.vue', '.json'],
     alias: {
-      '@': path.resolve(__dirname, '..', 'client')
+      '@': path.resolve(__dirname, '..', 'client'),
+      '~': path.resolve(__dirname, '..')
     }
   },
 

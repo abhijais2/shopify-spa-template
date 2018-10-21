@@ -7,7 +7,7 @@ const connectionOpts = { db: { address: MONGODB_URI, collection: collectionName 
 
 const agenda = new Agenda(connectionOpts)
 
-require('./scheduler-jobs/alert')(agenda)
+require('./jobs/alert')(agenda)
 
 agenda.start()
   .then()
@@ -32,5 +32,13 @@ agenda.on('fail', (err, job) => {
     errMessage: err.message
   })
 })
+
+async function graceful () {
+  await agenda.stop()
+  process.exit(0)
+}
+
+process.on('SIGTERM', graceful)
+process.on('SIGINT', graceful)
 
 module.exports = agenda
