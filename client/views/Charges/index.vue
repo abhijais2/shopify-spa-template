@@ -1,6 +1,11 @@
 <template>
-  <div>
-    .
+  <div v-loading="loading">
+    <div v-if="fatal_err">
+      Something went wrong, please contact support.
+    </div>
+    <div v-else>
+      .
+    </div>
   </div>
 </template>
 
@@ -10,7 +15,8 @@ import adaptor from '@/services/api/adaptor'
 export default {
   data () {
     return {
-      loading: true
+      loading: true,
+      fatal_err: false
     }
   },
 
@@ -27,6 +33,8 @@ export default {
       this.loading = false
     } catch (err) {
       console.log('error: ', err.message)
+      this.fatal_err = true
+      this.loading = false
     }
   }
 }

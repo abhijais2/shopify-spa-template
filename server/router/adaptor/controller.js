@@ -48,6 +48,7 @@ module.exports = {
   },
 
   async getAppCharge (ctx, next) {
+    logger.debug({ message: 'inside getAppCharge method' })
     let storeDoc = await Stores.findOne({ store_identifier: ctx.session.store_identifier }).exec()
     ctx.body = storeDoc.app_charge
     await next()

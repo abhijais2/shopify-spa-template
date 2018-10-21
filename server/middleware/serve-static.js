@@ -10,10 +10,9 @@ const staticPath = resolve(__dirname, '..', '..')
 module.exports = () => {
   if (process.env.NODE_ENV === 'development') {
     // return compose([indexFallbackMiddleware()])
-    // return async (ctx, next) => {
-    //   await next()
-    // }
-    return async () => {}
+    return async (ctx, next) => {
+      await next()
+    }
   } else {
     return compose([serveStatic(staticPath, { defer: true })])
   }
