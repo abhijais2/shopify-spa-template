@@ -18,7 +18,7 @@ module.exports = merge(baseWebpackConfig, {
     port: parseInt(process.env.PORT) + 1,
     open: true,
     hot: true,
-    historyApiFallback: false,
+    historyApiFallback: true,
     proxy: {
       '/api': `http://localhost:${process.env.PORT}`,
       '/adaptor': `http://localhost:${process.env.PORT}`

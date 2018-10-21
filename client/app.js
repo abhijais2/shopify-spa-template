@@ -6,7 +6,7 @@ import router from './router'
 
 import './styles/main.scss'
 import './directives'
-// import './vue-middlewares'
+import './vue-middlewares'
 
 import App from './App.vue'
 
